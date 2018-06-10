@@ -62,39 +62,16 @@ public class BossClient {
 		File file = new File(absolutePath);
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
-			String text;
-			while((text = reader.readLine()) != null) {
-				System.out.println(text);
+			String url;
+			while((url = reader.readLine()) != null) {
+				String QueryID = Utils.generateId();
+				producer.send(new ProducerRecord<String, String>("links", QueryID, url));
 			}
+			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		
-		
-//		while (true) {
-//			System.out.println("Digite uma URL que deseja consultar");
-//			String url;
-
-//			url = scanner.nextLine();
-
-			// Finish the program
-//			if (url.equals("FIM")) {
-//				break;
-//			}
-
-//			String QueryID = Utils.generateId();
-			// TODO: Create a topic to wait for response
-
-			// Send the link to the Links topic
-//			producer.send(new ProducerRecord<String, String>("links", QueryID, url));
-
-			// TODO: Creates a topic with QueryID and subscribe to it
-
-			// TODO: Wait for a worker response
-//			System.out.println("Esperando resposta");
-
-			// TODO: Close the topic
-//		}
 	}
 
 	private static boolean selectOption() {
