@@ -12,26 +12,26 @@ public class BossClient {
 
 	public static void main(String[] args) {
 		Producer<String, String> producer = Utils.createProducer();
-
-		if (selectOption()) {
+		Scanner scanner = new Scanner(System.in);
+		
+		if (selectOption(scanner)) {
 			System.out.println("Running from file...");
 			runFromFile(producer);
 		} else {
 			System.out.println("Running from input...");
-			runFromInput(producer);
+			runFromInput(producer, scanner);
 		}
 
+		scanner.close();
 		producer.close();
 	}
 
-	private static void runFromInput(Producer<String, String> producer) {
-		Scanner scanIn = new Scanner(System.in);
-
+	private static void runFromInput(Producer<String, String> producer, Scanner scanner) {
 		while (true) {
 			System.out.println("Digite uma URL que deseja consultar");
 			String url;
 
-			url = scanIn.nextLine();
+			url = scanner.nextLine();
 
 			// Finish the program
 			if (url.equals("FIM")) {
@@ -71,11 +71,9 @@ public class BossClient {
 		
 	}
 
-	private static boolean selectOption() {
-		Scanner scanner = new Scanner(System.in);
+	private static boolean selectOption(Scanner scanner) {
 		System.out.println("digite 'file' para input de arquivo ou 'msg' para enviar seus links...");
 		String option = scanner.nextLine();
-		scanner.close();
 		if (option.equals("file"))
 			return true;
 		return false;
