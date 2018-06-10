@@ -5,13 +5,15 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 
 public class Worker {
-	private ProducerRecord<String, String> record;
+	private ConsumerRecord<String,String> record;
+	public int points;
 	
-	public Worker(ProducerRecord<String, String> record) {
+	public Worker(ConsumerRecord<String,String> record) {
 		this.record = record;
+		this.points = 0;
 	}
 	
 	/*
@@ -22,7 +24,17 @@ public class Worker {
 	public boolean Fetch() {
 		String result;
 		try {
+			// Get the HTML of the Page
 			result = this.GetHtml(this.record.value());
+			
+			System.out.println(result);
+			
+			// TODO: Check if the topic with the record.key() exist
+			
+			// TODO: If true, Publish in the topic, else, return false
+			
+			// TODO: 
+			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

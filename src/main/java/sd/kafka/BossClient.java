@@ -1,6 +1,7 @@
 package sd.kafka;
 
 import java.util.Properties;
+import java.util.Scanner;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
@@ -9,24 +10,36 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class BossClient {
 
 	public static void main(String[] args) {
+		Producer<String, String> producer = Utils.createProducer();
+		Scanner scanIn = new Scanner(System.in);
 		
-	Properties props = new Properties();
-	props.put("bootstrap.servers", "localhost:9092");
-	props.put("acks", "all");
-	props.put("retries", 0);
-	props.put("batch.size", 16384);
-	props.put("linger.ms", 1);
-	props.put("buffer.memory", 33554432);
-	props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-	props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-
-	Producer<String, String> producer = new KafkaProducer<>(props);
-	for (int i = 0; i < 100; i++)
-	    producer.send(new ProducerRecord<String, String>("links", Integer.toString(i), Integer.toString(i)));
-	
-	producer.close();
-	
-	System.out.println("test");
+		while(true) {
+			System.out.println("Digite uma URL que deseja consultar");
+			String url;
+			
+			url = scanIn.nextLine();
+			
+			// Finish the program
+			if(url.equals("FIM")) {
+				break;
+			}
+			
+			String QueryID = Utils.generateId();
+			// TODO: Create a topic to wait for response
+			
+			// Send the link to the Links topic
+		    producer.send(new ProducerRecord<String, String>("links", QueryID, url));
+		    
+		    // TODO: Creates a topic with QueryID and subscribe to it
+		    
+		    // TODO: Wait for a worker response
+		    System.out.println("Esperando resposta");
+		    
+		    // TODO: Close the topic
+		}
+		
+		scanIn.close();
+		producer.close();
 	}
 
 }
