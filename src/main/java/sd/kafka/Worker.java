@@ -52,6 +52,7 @@ public class Worker {
 		   result.append(line);
 		}
 		rd.close();
+		
 		return result.toString();
 	}
 }

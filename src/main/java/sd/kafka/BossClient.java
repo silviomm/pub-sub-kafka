@@ -1,9 +1,6 @@
 package sd.kafka;
 
-import java.util.Properties;
 import java.util.Scanner;
-
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 
@@ -25,7 +22,8 @@ public class BossClient {
 			}
 			
 			String QueryID = Utils.generateId();
-			// TODO: Create a topic to wait for response
+			
+			// TODO: Create a topic with QueryID and wait for response
 			
 			// Send the link to the Links topic
 		    producer.send(new ProducerRecord<String, String>("links", QueryID, url));
@@ -36,6 +34,7 @@ public class BossClient {
 		    System.out.println("Esperando resposta");
 		    
 		    // TODO: Close the topic
+		    
 		}
 		
 		scanIn.close();
