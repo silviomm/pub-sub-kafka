@@ -19,7 +19,7 @@ public class Topic {
 		this.admin = AdminClient.create(props);
 	}
 	
-	public boolean Create(String topicId) throws InterruptedException, ExecutionException {
+	public boolean create(String topicId) throws InterruptedException, ExecutionException {
 		ArrayList<NewTopic> topic = new ArrayList<NewTopic>();
 		topic.add(new NewTopic(topicId, 1, (short) 1));
 		CreateTopicsResult t = this.admin.createTopics(topic);
@@ -28,7 +28,7 @@ public class Topic {
 		return t.all().isDone();
 	}
 	
-	public boolean Delete(String topicId) throws InterruptedException, ExecutionException {
+	public boolean delete(String topicId) throws InterruptedException, ExecutionException {
 		ArrayList<String> topic = new ArrayList<String>();
 		topic.add(topicId);
 		

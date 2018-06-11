@@ -5,13 +5,20 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Scanner;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 public class BossClient {
+
+	private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	public static void main(String[] args) throws InterruptedException, ExecutionException {
 		Boss b = new Boss();
 		Scanner scanner = new Scanner(System.in);
-		
+
 		if (selectOption(scanner)) {
 			System.out.println("Running from file...");
 			runFromFile(b);
@@ -35,8 +42,18 @@ public class BossClient {
 				break;
 			}
 
-			String response = b.SendLink(url);
-			System.out.println(response);
+			String queueID = b.sendLink(url);
+			executor.submit(() -> {
+				Future<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);				
+				try {
+					String result = future.get(30, TimeUnit.SECONDS);
+					System.out.println(result);
+					Topic topicUtils = new Topic();
+					topicUtils.delete(queueID);
+				} catch(TimeoutException | InterruptedException | ExecutionException e) {
+					// faz algo para repetir a requisição
+				}
+			});
 		}
 	}
 
@@ -46,15 +63,15 @@ public class BossClient {
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String url;
-			while((url = reader.readLine()) != null) {
-				String response = b.SendLink(url);
+			while ((url = reader.readLine()) != null) {
+				String response = b.sendLink(url);
 				System.out.println(response);
 			}
 			reader.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	private static boolean selectOption(Scanner scanner) {
