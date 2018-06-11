@@ -2,6 +2,7 @@ package sd.kafka;
 
 import java.util.Arrays;
 import java.util.concurrent.Callable;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,24 +37,23 @@ public class Boss {
 		return queueID;
 	}
 
-	public Future<String> getResponse(KafkaConsumer<String, String> consumer, String QueueId) {
-		Callable<String> task = new Callable<String>() {
-			public String call() {
-				String result = "";
-				consumer.subscribe(Arrays.asList(QueueId));
-				while (true) {
-					ConsumerRecords<String, String> records = consumer.poll(1);
-					if (records.count() > 0) {
-						for (ConsumerRecord<String, String> record : records) {
-							result = record.value();
-						}
-						break;
-					}
+	public CompletableFuture<String> getResponse(KafkaConsumer<String, String> consumer, String queueId) {
+		CompletableFuture<String> task = CompletableFuture.supplyAsync(() -> consumeQueue(consumer, queueId));
+		return task;
+	}
+
+	private String consumeQueue(KafkaConsumer<String, String> consumer, String queueId) {
+		String result = "";
+		consumer.subscribe(Arrays.asList(queueId));
+		while (true) {
+			ConsumerRecords<String, String> records = consumer.poll(1);
+			if (records.count() > 0) {
+				for (ConsumerRecord<String, String> record : records) {
+					result = record.value();
 				}
-				return result;
+				break;
 			}
-		};
-		ExecutorService executor =  Executors.newSingleThreadExecutor();
-		return executor.submit(task);
+		}
+		return result;
 	}
 }

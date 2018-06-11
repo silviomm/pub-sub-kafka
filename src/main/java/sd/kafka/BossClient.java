@@ -4,6 +4,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Scanner;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,15 +44,16 @@ public class BossClient {
 			}
 
 			String queueID = b.sendLink(url);
-			executor.submit(() -> {
-				Future<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);				
-				try {
-					String result = future.get(30, TimeUnit.SECONDS);
-					System.out.println(result);
+			CompletableFuture<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);
+			future.whenComplete((str, error) -> {
+				if(error == null) {					
+					System.out.println(str);				
 					Topic topicUtils = new Topic();
-					topicUtils.delete(queueID);
-				} catch(TimeoutException | InterruptedException | ExecutionException e) {
-					// faz algo para repetir a requisição
+					try {
+						topicUtils.delete(queueID);
+					} catch (InterruptedException | ExecutionException e) {
+						e.printStackTrace();
+					}
 				}
 			});
 		}
