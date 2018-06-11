@@ -4,29 +4,26 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.Scanner;
-
-import org.apache.kafka.clients.producer.Producer;
-import org.apache.kafka.clients.producer.ProducerRecord;
+import java.util.concurrent.ExecutionException;
 
 public class BossClient {
 
-	public static void main(String[] args) {
-		Producer<String, String> producer = Utils.createProducer();
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+		Boss b = new Boss();
 		Scanner scanner = new Scanner(System.in);
 		
 		if (selectOption(scanner)) {
 			System.out.println("Running from file...");
-			runFromFile(producer);
+			runFromFile(b);
 		} else {
 			System.out.println("Running from input...");
-			runFromInput(producer, scanner);
+			runFromInput(b, scanner);
 		}
 
 		scanner.close();
-		producer.close();
 	}
 
-	private static void runFromInput(Producer<String, String> producer, Scanner scanner) {
+	private static void runFromInput(Boss b, Scanner scanner) throws InterruptedException, ExecutionException {
 		while (true) {
 			System.out.println("Digite uma URL que deseja consultar");
 			String url;
@@ -38,31 +35,20 @@ public class BossClient {
 				break;
 			}
 
-			String QueryID = Utils.generateId();
-			// TODO: Create a topic to wait for response
-
-			// Send the link to the Links topic
-			producer.send(new ProducerRecord<String, String>("links", QueryID, url));
-
-			// TODO: Creates a topic with QueryID and subscribe to it
-
-			// TODO: Wait for a worker response
-			System.out.println("Esperando resposta");
-
-			// TODO: Close the topic
+			String response = b.SendLink(url);
+			System.out.println(response);
 		}
 	}
 
-	private static void runFromFile(Producer<String, String> producer) {
-
+	private static void runFromFile(Boss b) {
 		String absolutePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "sites.txt";
 		File file = new File(absolutePath);
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String url;
 			while((url = reader.readLine()) != null) {
-				String QueryID = Utils.generateId();
-				producer.send(new ProducerRecord<String, String>("links", QueryID, url));
+				String response = b.SendLink(url);
+				System.out.println(response);
 			}
 			reader.close();
 		} catch (Exception e) {

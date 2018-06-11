@@ -1,19 +1,19 @@
 package sd.kafka;
 
 import java.util.Properties;
+import org.apache.commons.lang3.RandomStringUtils;
 import java.util.UUID;
 
-import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
 public class Utils {
-	public static KafkaConsumer<String, String> createConsumer() {
+	public static KafkaConsumer<String, String> createConsumer(String groupId) {
 		// Load Properties
 	     Properties props = new Properties();
 	     props.put("bootstrap.servers", "localhost:9092");
-	     props.put("group.id", "consumer");
+	     props.put("group.id", groupId);
 	     props.put("enable.auto.commit", "true");
 	     props.put("auto.commit.interval.ms", "1000");
 	     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
@@ -42,6 +42,6 @@ public class Utils {
 	
     public static String generateId() {
         String uuid = UUID.randomUUID().toString();
-        return uuid;
+        return RandomStringUtils.random(8, "0123456789abcdef");
     }
 }

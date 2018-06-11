@@ -6,14 +6,18 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
+import org.apache.kafka.clients.producer.Producer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class Worker {
 	private ConsumerRecord<String,String> record;
+	private Producer<String, String> producer;
 	public int points;
 	
 	public Worker(ConsumerRecord<String,String> record) {
-		this.record = record;
-		this.points = 0;
+		this.record   = record;
+		this.points   = 0;
+		this.producer = Utils.createProducer();
 	}
 	
 	/*
@@ -24,16 +28,11 @@ public class Worker {
 	public boolean Fetch() {
 		String result;
 		try {
-			// Get the HTML of the Page
 			result = this.GetHtml(this.record.value());
 			
 			System.out.println(result);
-			
-			// TODO: Check if the topic with the record.key() exist
-			
-			// TODO: If true, Publish in the topic, else, return false
-			
-			// TODO: 
+			System.out.println("Enviando para: " + this.record.key());
+			this.producer.send(new ProducerRecord<String, String>(this.record.key(), result));
 			return true;
 		} catch (Exception e) {
 			e.printStackTrace();
