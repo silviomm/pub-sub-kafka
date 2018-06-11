@@ -12,42 +12,44 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 public class Boss {
 	Producer<String, String> Producer;
 	Topic topicUtils;
-	
+
 	public Boss() {
 		this.Producer = Utils.createProducer();
 		this.topicUtils = new Topic();
-		
+
 	}
-	
+
 	public String SendLink(String url) throws InterruptedException, ExecutionException {
 		String result = "";
-		String QueryID  = Utils.generateId();
-		KafkaConsumer<String, String> consumer = Utils.createConsumer("boss");
-
-		this.Producer.send(new ProducerRecord<String, String>("links", QueryID, url));
+		String QueryID = Utils.generateId();
 
 		try {
 			this.topicUtils.Create(QueryID);
+			this.Producer.send(new ProducerRecord<String, String>("links", QueryID, url));
 		} catch (InterruptedException | ExecutionException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
-		consumer.subscribe(Arrays.asList(QueryID));
-		System.out.println("Sub em: " + QueryID);
-		while(true) {
+
+		KafkaConsumer<String, String> consumer = Utils.createConsumer("boss");
+		System.out.println("Waiting response on topic: " + QueryID);
+		result = waitResponse(consumer, QueryID);
+		topicUtils.Delete(QueryID);
+
+		return result;
+	}
+
+	private String waitResponse(KafkaConsumer<String, String> consumer, String QueueId) {
+		String result = "";
+		consumer.subscribe(Arrays.asList(QueueId));
+		while (true) {
 			ConsumerRecords<String, String> records = consumer.poll(1);
-			
-			if(records.count() > 0) {
+			if (records.count() > 0) {
 				for (ConsumerRecord<String, String> record : records) {
 					result = record.value();
-			    }
+				}
 				break;
 			}
 		}
-		
-		topicUtils.Delete(QueryID);
-		
 		return result;
 	}
 }
