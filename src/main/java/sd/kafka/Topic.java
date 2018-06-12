@@ -14,7 +14,7 @@ public class Topic {
 	
 	public Topic() {
 		Properties props = new Properties();
-	    props.put("bootstrap.servers", "localhost:9092");
+	    props.put("bootstrap.servers", "146.164.4.16:9092");
 	     
 		this.admin = AdminClient.create(props);
 	}

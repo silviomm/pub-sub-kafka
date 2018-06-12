@@ -17,6 +17,7 @@ public class WorkerClient {
 			// Get a record
 		    ConsumerRecords<String, String> records = consumer.poll(1);
 		    for (ConsumerRecord<String, String> record : records) {
+		    	System.out.println("Recebeu: " + record.value());
 		   	 Worker w = new Worker(record);
 		   	 w.Fetch();
 		    }

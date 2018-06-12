@@ -12,7 +12,7 @@ public class Utils {
 	public static KafkaConsumer<String, String> createConsumer(String groupId) {
 		// Load Properties
 	     Properties props = new Properties();
-	     props.put("bootstrap.servers", "localhost:9092");
+	     props.put("bootstrap.servers", "146.164.4.16:9092");
 	     props.put("group.id", groupId);
 	     props.put("enable.auto.commit", "true");
 	     props.put("auto.commit.interval.ms", "1000");
@@ -27,7 +27,7 @@ public class Utils {
 	
 	public static Producer<String, String> createProducer() {
 		Properties props = new Properties();
-		props.put("bootstrap.servers", "localhost:9092");
+		props.put("bootstrap.servers", "146.164.4.16:9092");
 		props.put("acks", "all");
 		props.put("retries", 0);
 		props.put("batch.size", 16384);
