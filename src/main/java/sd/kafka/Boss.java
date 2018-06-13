@@ -1,12 +1,8 @@
 package sd.kafka;
 
 import java.util.Arrays;
-import java.util.concurrent.Callable;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -25,8 +21,11 @@ public class Boss {
 	}
 
 	public String sendLink(String url) throws Exception {
-		String queueID = Utils.generateId();
-
+		String queueID = this.genQueueID();
+		do {
+			queueID = Utils.generateId();
+		} while (this.topicUtils.exists(queueID));
+		
 		try {
 			if (this.topicUtils.create(queueID)) {
 				this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
@@ -37,6 +36,14 @@ public class Boss {
 			e.printStackTrace();
 		}
 
+		return queueID;
+	}
+	
+	private String genQueueID() {
+		String queueID;
+		do {
+			queueID = Utils.generateId();
+		} while (this.topicUtils.exists(queueID));
 		return queueID;
 	}
 

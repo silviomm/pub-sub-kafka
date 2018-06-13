@@ -48,9 +48,16 @@ public class Topic {
 
 		return r.all().isDone();
 	}
-	
-	public boolean Exists(String topicId) {
-		//ListTopicsResult a = this.admin.listTopics();
-		return false;
+
+	public boolean exists(String topicName) {
+		ListTopicsResult list = this.admin.listTopics();
+		KafkaFuture<Set<String>> futureNames = list.names();
+		try {
+			Set<String> names = futureNames.get(10, TimeUnit.SECONDS);
+			return names.contains(topicName) ? true : false;
+		} catch (InterruptedException | ExecutionException | TimeoutException e) {
+			e.printStackTrace();
+			return true;
+		}
 	}
 }
