@@ -12,19 +12,15 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class Boss {
 	private Producer<String, String> Producer;
-	private Topic topicUtils;
+	private TopicService topicUtils;
 
 	public Boss() {
 		this.Producer = Utils.createProducer();
-		this.topicUtils = new Topic();
-
+		this.topicUtils = new TopicService();
 	}
 
 	public String sendLink(String url) throws Exception {
 		String queueID = this.genQueueID();
-		do {
-			queueID = Utils.generateId();
-		} while (this.topicUtils.exists(queueID));
 		
 		try {
 			if (this.topicUtils.create(queueID)) {

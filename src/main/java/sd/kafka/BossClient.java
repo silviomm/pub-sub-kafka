@@ -5,16 +5,8 @@ import java.io.File;
 import java.io.FileReader;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 public class BossClient {
-
-	private static ExecutorService executor = Executors.newCachedThreadPool();
 
 	public static void main(String[] args) throws Exception {
 		Boss b = new Boss();
@@ -46,14 +38,11 @@ public class BossClient {
 			String queueID = b.sendLink(url);
 			CompletableFuture<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);
 			future.whenComplete((str, error) -> {
-				if(error == null) {					
-					System.out.println(str);				
-					Topic topicUtils = new Topic();
-					try {
-						topicUtils.delete(queueID);
-					} catch (InterruptedException | ExecutionException e) {
-						e.printStackTrace();
-					}
+				if (error == null) {
+					System.out.println(str);
+					TopicService topicUtils = new TopicService();
+					boolean isDeleted = topicUtils.delete(queueID);
+					System.out.println("Topic: " + queueID + " deleted: " + isDeleted);
 				}
 			});
 		}

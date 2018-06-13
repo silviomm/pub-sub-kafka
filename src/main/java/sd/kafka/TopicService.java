@@ -15,10 +15,11 @@ import org.apache.kafka.clients.admin.ListTopicsResult;
 import org.apache.kafka.clients.admin.NewTopic;
 import org.apache.kafka.common.KafkaFuture;
 
-public class Topic {
-	AdminClient admin;
+public class TopicService {
 
-	public Topic() {
+	private AdminClient admin;
+
+	public TopicService() {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", "146.164.4.16:9092");
 
@@ -39,19 +40,24 @@ public class Topic {
 		}
 	}
 
-	public boolean delete(String topicId) throws InterruptedException, ExecutionException {
-		ArrayList<String> topic = new ArrayList<String>();
+	public boolean delete(String topicId) {
+		List<String> topic = new ArrayList<>();
 		topic.add(topicId);
-
 		DeleteTopicsResult r = this.admin.deleteTopics(topic);
-		r.all().get();
 
-		return r.all().isDone();
+		try {
+			r.all().get(10, TimeUnit.SECONDS);
+			return true;
+		} catch (TimeoutException | InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+			return false;
+		}
 	}
 
 	public boolean exists(String topicName) {
 		ListTopicsResult list = this.admin.listTopics();
 		KafkaFuture<Set<String>> futureNames = list.names();
+		
 		try {
 			Set<String> names = futureNames.get(10, TimeUnit.SECONDS);
 			return names.contains(topicName) ? true : false;
