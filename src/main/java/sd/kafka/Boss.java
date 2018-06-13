@@ -24,12 +24,15 @@ public class Boss {
 
 	}
 
-	public String sendLink(String url) throws InterruptedException, ExecutionException {
+	public String sendLink(String url) throws Exception {
 		String queueID = Utils.generateId();
 
 		try {
-			this.topicUtils.create(queueID);
-			this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
+			if (this.topicUtils.create(queueID)) {
+				this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
+			} else {
+				throw new Exception("Error creating queue: " + queueID + "for url: " + url);
+			}
 		} catch (InterruptedException | ExecutionException e) {
 			e.printStackTrace();
 		}

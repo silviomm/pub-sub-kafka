@@ -16,7 +16,7 @@ public class BossClient {
 
 	private static ExecutorService executor = Executors.newCachedThreadPool();
 
-	public static void main(String[] args) throws InterruptedException, ExecutionException {
+	public static void main(String[] args) throws Exception {
 		Boss b = new Boss();
 		Scanner scanner = new Scanner(System.in);
 
@@ -31,7 +31,7 @@ public class BossClient {
 		scanner.close();
 	}
 
-	private static void runFromInput(Boss b, Scanner scanner) throws InterruptedException, ExecutionException {
+	private static void runFromInput(Boss b, Scanner scanner) throws Exception {
 		while (true) {
 			System.out.println("Digite uma URL que deseja consultar");
 			String url;
