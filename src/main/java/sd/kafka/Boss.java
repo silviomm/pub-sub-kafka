@@ -2,7 +2,6 @@ package sd.kafka;
 
 import java.util.Arrays;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -12,34 +11,30 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 
 public class Boss {
 	private Producer<String, String> Producer;
-	private TopicService topicUtils;
+	private TopicService _topicService;
 
 	public Boss() {
 		this.Producer = Utils.createProducer();
-		this.topicUtils = new TopicService();
+		this._topicService = new TopicService();
 	}
 
-	public String sendLink(String url) throws Exception {
+	public String sendLink(String url) throws QueueException {
 		String queueID = this.genQueueID();
-		
-		try {
-			if (this.topicUtils.create(queueID)) {
-				this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
-			} else {
-				throw new Exception("Error creating queue: " + queueID + "for url: " + url);
-			}
-		} catch (InterruptedException | ExecutionException e) {
-			e.printStackTrace();
+
+		if (this._topicService.create(queueID)) {
+			this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
+		} else {
+			throw new QueueException(queueID, url);
 		}
 
 		return queueID;
 	}
-	
+
 	private String genQueueID() {
 		String queueID;
 		do {
 			queueID = Utils.generateId();
-		} while (this.topicUtils.exists(queueID));
+		} while (this._topicService.exists(queueID));
 		return queueID;
 	}
 

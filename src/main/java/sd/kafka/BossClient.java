@@ -3,6 +3,7 @@ package sd.kafka;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
 
@@ -23,28 +24,20 @@ public class BossClient {
 		scanner.close();
 	}
 
-	private static void runFromInput(Boss b, Scanner scanner) throws Exception {
+	private static void runFromInput(Boss b, Scanner scanner) {
 		while (true) {
 			System.out.println("Digite uma URL que deseja consultar");
-			String url;
-
-			url = scanner.nextLine();
-
+			String url = scanner.nextLine();
 			// Finish the program
 			if (url.equals("FIM")) {
 				break;
 			}
 
-			String queueID = b.sendLink(url);
-			CompletableFuture<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);
-			future.whenComplete((str, error) -> {
-				if (error == null) {
-					System.out.println(str);
-					TopicService topicUtils = new TopicService();
-					boolean isDeleted = topicUtils.delete(queueID);
-					System.out.println("Topic: " + queueID + " deleted: " + isDeleted);
-				}
-			});
+			try {
+				crawlHtml(b, url);
+			} catch (QueueException e) {
+				System.out.println(e.getMessage());
+			}
 		}
 	}
 
@@ -55,14 +48,30 @@ public class BossClient {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String url;
 			while ((url = reader.readLine()) != null) {
-				String response = b.sendLink(url);
-				System.out.println(response);
+				try {
+					crawlHtml(b, url);
+				} catch (QueueException e) {
+					System.out.println(e.getMessage());
+				}
 			}
 			reader.close();
-		} catch (Exception e) {
+		} catch (IOException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	private static void crawlHtml(Boss b, String url) throws QueueException {
+		String queueID = b.sendLink(url);
+		CompletableFuture<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);
+		future.whenComplete((str, error) -> {
+			if (error == null) {
+				System.out.println(str);
+				TopicService topicUtils = new TopicService();
+				boolean isDeleted = topicUtils.delete(queueID);
+				System.out.println("Topic: " + queueID + " deleted: " + isDeleted);
+			}
+		});
 	}
 
 	private static boolean selectOption(Scanner scanner) {
@@ -70,7 +79,11 @@ public class BossClient {
 		String option = scanner.nextLine();
 		if (option.equals("file"))
 			return true;
-		return false;
+		else if (option.equals("msg")) {
+			return false;
+		} else {
+			return selectOption(scanner);
+		}
 	}
 
 }

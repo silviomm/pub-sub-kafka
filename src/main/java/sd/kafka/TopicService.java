@@ -18,6 +18,7 @@ import org.apache.kafka.common.KafkaFuture;
 public class TopicService {
 
 	private AdminClient admin;
+	private static final int MAX_WAIT_TIME = 10;
 
 	public TopicService() {
 		Properties props = new Properties();
@@ -32,7 +33,7 @@ public class TopicService {
 		CreateTopicsResult c = this.admin.createTopics(topics);
 
 		try {
-			c.all().get(10, TimeUnit.SECONDS);
+			c.all().get(MAX_WAIT_TIME, TimeUnit.SECONDS);
 			return true;
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
@@ -43,10 +44,10 @@ public class TopicService {
 	public boolean delete(String topicId) {
 		List<String> topic = new ArrayList<>();
 		topic.add(topicId);
-		DeleteTopicsResult r = this.admin.deleteTopics(topic);
+		DeleteTopicsResult d = this.admin.deleteTopics(topic);
 
 		try {
-			r.all().get(10, TimeUnit.SECONDS);
+			d.all().get(MAX_WAIT_TIME, TimeUnit.SECONDS);
 			return true;
 		} catch (TimeoutException | InterruptedException | ExecutionException e) {
 			e.printStackTrace();
@@ -59,7 +60,7 @@ public class TopicService {
 		KafkaFuture<Set<String>> futureNames = list.names();
 		
 		try {
-			Set<String> names = futureNames.get(10, TimeUnit.SECONDS);
+			Set<String> names = futureNames.get(MAX_WAIT_TIME, TimeUnit.SECONDS);
 			return names.contains(topicName) ? true : false;
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
