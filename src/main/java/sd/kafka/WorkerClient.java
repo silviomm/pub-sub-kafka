@@ -15,9 +15,9 @@ public class WorkerClient {
 		// Wait for Jobs to do
 		while (true) {
 			// Get a record
-		    ConsumerRecords<String, String> records = consumer.poll(1);
+		    ConsumerRecords<String, String> records = consumer.poll(60);
 		    for (ConsumerRecord<String, String> record : records) {
-		    	System.out.println("Recebeu: " + record.value());
+		    	System.out.println("Link recebido: " + record.value());
 		   	 Worker w = new Worker(record);
 		   	 w.Fetch();
 		    }

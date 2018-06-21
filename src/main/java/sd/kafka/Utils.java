@@ -9,22 +9,37 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 
 public class Utils {
+	public static KafkaConsumer<String, String> createConsumerBoss() {
+		// Load Properties
+		Properties props = new Properties();
+		props.put("bootstrap.servers", "146.164.4.16:9092");
+		props.put("enable.auto.commit", "true");
+		props.put("group.id", "boss");
+		props.put("auto.offset.reset", "earliest");
+		props.put("auto.commit.interval.ms", "1000");
+		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+		// Initiate consumer and subscribe to the links topic
+		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+		return consumer;
+	}
+
 	public static KafkaConsumer<String, String> createConsumer(String groupId) {
 		// Load Properties
-	     Properties props = new Properties();
-	     props.put("bootstrap.servers", "146.164.4.16:9092");
-	     props.put("group.id", groupId);
-	     props.put("enable.auto.commit", "true");
-	     props.put("auto.commit.interval.ms", "1000");
-	     props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-	     props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
-	     
-	     
-	     // Initiate consumer and subscribe to the links topic
-	     KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
-	     return consumer;
+		Properties props = new Properties();
+		props.put("bootstrap.servers", "146.164.4.16:9092");
+		props.put("group.id", groupId);
+		props.put("enable.auto.commit", "true");
+		props.put("auto.commit.interval.ms", "1000");
+		props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+		props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+
+		// Initiate consumer and subscribe to the links topic
+		KafkaConsumer<String, String> consumer = new KafkaConsumer<>(props);
+		return consumer;
 	}
-	
+
 	public static Producer<String, String> createProducer() {
 		Properties props = new Properties();
 		props.put("bootstrap.servers", "146.164.4.16:9092");
@@ -35,13 +50,13 @@ public class Utils {
 		props.put("buffer.memory", 33554432);
 		props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
 		props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer");
-	
+
 		Producer<String, String> producer = new KafkaProducer<>(props);
 		return producer;
 	}
-	
-    public static String generateId() {
-        String uuid = UUID.randomUUID().toString();
-        return RandomStringUtils.random(8, "0123456789abcdef");
-    }
+
+	public static String generateId() {
+		String uuid = UUID.randomUUID().toString();
+		return RandomStringUtils.random(8, "0123456789abcdef");
+	}
 }

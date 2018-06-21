@@ -1,4 +1,10 @@
-https://www.google.com
-https://www.submarino.com.br
-https://www.boadica.com.br
-https://www.nature.com/nature/
+http://www.google.com
+http://example.com
+http://www.google.com
+http://example.com
+http://www.google.com
+http://example.com
+http://www.google.com
+http://example.com
+http://www.google.com
+http://example.com
