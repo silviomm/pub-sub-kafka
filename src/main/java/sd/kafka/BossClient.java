@@ -4,8 +4,13 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 
 public class BossClient {
 
@@ -42,14 +47,16 @@ public class BossClient {
 	}
 
 	private static void runFromFile(Boss b) {
-		String absolutePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "sites.txt";
+		String absolutePath = System.getProperty("user.dir") + System.getProperty("file.separator") + "1msites.txt";
 		File file = new File(absolutePath);
+		List<CompletableFuture<String>> futures = new ArrayList<>();
 		try {
 			BufferedReader reader = new BufferedReader(new FileReader(file));
 			String url;
 			while ((url = reader.readLine()) != null) {
 				try {
-					crawlHtml(b, url);
+					System.out.println("Mandando URL: " + url);
+					futures.add(crawlHtml(b, url));
 				} catch (QueueException e) {
 					System.out.println(e.getMessage());
 				}
@@ -58,20 +65,30 @@ public class BossClient {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		CompletableFuture<Void> allFuturesWait = CompletableFuture
+				.allOf(futures.toArray(new CompletableFuture[futures.size()]));
+		try {
+			allFuturesWait.get();
+		} catch (InterruptedException | ExecutionException e) {
+			e.printStackTrace();
+		}
 
 	}
 
-	private static void crawlHtml(Boss b, String url) throws QueueException {
+	private static CompletableFuture<String> crawlHtml(Boss b, String url)
+			throws QueueException {
 		String queueID = b.sendLink(url);
-		CompletableFuture<String> future = b.getResponse(Utils.createConsumer("boss"), queueID);
+		System.out.println("Link enviado para links");
+		CompletableFuture<String> future = b.getResponse(Utils.createConsumer(queueID), queueID);
 		future.whenComplete((str, error) -> {
 			if (error == null) {
-				System.out.println(str);
+				System.out.println("Recebi HTML de: " + queueID);
 				TopicService topicUtils = new TopicService();
 				boolean isDeleted = topicUtils.delete(queueID);
 				System.out.println("Topic: " + queueID + " deleted: " + isDeleted);
 			}
 		});
+		return future;
 	}
 
 	private static boolean selectOption(Scanner scanner) {

@@ -34,7 +34,7 @@ public class TopicService {
 
 		try {
 			c.all().get(MAX_WAIT_TIME, TimeUnit.SECONDS);
-			return true;
+			return c.all().isDone();
 		} catch (InterruptedException | ExecutionException | TimeoutException e) {
 			e.printStackTrace();
 			return false;
