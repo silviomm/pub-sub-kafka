@@ -22,8 +22,8 @@ public class Boss {
 		String queueID = this.genQueueID();
 
 		if (this._topicService.create(queueID)) {
-			System.out.println("Criou topico " + queueID + "? " + this._topicService.exists(queueID));
 			this.Producer.send(new ProducerRecord<String, String>("links", queueID, url));
+			System.out.println("Link: " + url + " enviado para: " + queueID);
 		} else {
 			throw new QueueException(queueID, url);
 		}
@@ -46,7 +46,6 @@ public class Boss {
 
 	public String consumeQueue(KafkaConsumer<String, String> consumer, String queueId) {
 		String result = "";
-		System.out.println();
 		consumer.subscribe(Arrays.asList(queueId));
 		while (true) {
 			ConsumerRecords<String, String> records = consumer.poll(1);

@@ -27,9 +27,9 @@ public class TopicService {
 		this.admin = AdminClient.create(props);
 	}
 
-	public boolean create(String name) {
+	public boolean create(String topicName) {
 		List<NewTopic> topics = new ArrayList<>();
-		topics.add(new NewTopic(name, 1, (short) 1));
+		topics.add(new NewTopic(topicName, 1, (short) 1));
 		CreateTopicsResult c = this.admin.createTopics(topics);
 
 		try {
@@ -41,9 +41,9 @@ public class TopicService {
 		}
 	}
 
-	public boolean delete(String topicId) {
+	public boolean delete(String topicName) {
 		List<String> topic = new ArrayList<>();
-		topic.add(topicId);
+		topic.add(topicName);
 		DeleteTopicsResult d = this.admin.deleteTopics(topic);
 
 		try {
@@ -58,7 +58,7 @@ public class TopicService {
 	public boolean exists(String topicName) {
 		ListTopicsResult list = this.admin.listTopics();
 		KafkaFuture<Set<String>> futureNames = list.names();
-		
+
 		try {
 			Set<String> names = futureNames.get(MAX_WAIT_TIME, TimeUnit.SECONDS);
 			return names.contains(topicName) ? true : false;

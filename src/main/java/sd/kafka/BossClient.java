@@ -75,14 +75,15 @@ public class BossClient {
 
 	}
 
-	private static CompletableFuture<String> crawlHtml(Boss b, String url)
-			throws QueueException {
+	private static CompletableFuture<String> crawlHtml(Boss b, String url) throws QueueException {
 		String queueID = b.sendLink(url);
-		System.out.println("Link enviado para links");
 		CompletableFuture<String> future = b.getResponse(Utils.createConsumer(queueID), queueID);
 		future.whenComplete((str, error) -> {
 			if (error == null) {
-				System.out.println("Recebi HTML de: " + queueID);
+				if (str.equals("ERRO AO PEGAR HTML"))
+					System.out.println("Recebida resposta de erro de: " + queueID);
+				else
+					System.out.println("HTML de: " + queueID + "recebido");
 				TopicService topicUtils = new TopicService();
 				boolean isDeleted = topicUtils.delete(queueID);
 				System.out.println("Topic: " + queueID + " deleted: " + isDeleted);
